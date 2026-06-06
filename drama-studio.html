@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+<title>Drama Studio</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0c0c0e;
+    --bg2: #141416;
+    --bg3: #1c1c20;
+    --bg4: #242428;
+    --gold: #f5a623;
+    --gold2: #ffc347;
+    --gold-dim: rgba(245,166,35,0.12);
+    --text: #f0efeb;
+    --text2: #9e9d97;
+    --text3: #5a5957;
+    --green: #22c55e;
+    --blue: #60a5fa;
+    --red: #f87171;
+    --border: rgba(255,255,255,0.07);
+    --border2: rgba(255,255,255,0.12);
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    max-width: 430px;
+    margin: 0 auto;
+    overflow-x: hidden;
+  }
+
+  /* NAV */
+  .nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px 12px;
+    border-bottom: 0.5px solid var(--border);
+    position: sticky;
+    top: 0;
+    background: var(--bg);
+    z-index: 100;
+  }
+  .nav-logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 0.08em;
+    color: var(--gold);
+  }
+  .nav-badge {
+    font-size: 9px;
+    background: var(--gold);
+    color: #000;
+    border-radius: 4px;
+    padding: 2px 6px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    margin-left: 8px;
+    vertical-align: middle;
+  }
+  .nav-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--bg3);
+    border: 0.5px solid var(--border2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    cursor: pointer;
+  }
+
+  /* SCREENS */
+  .screen { display: none; padding-bottom: 80px; }
+  .screen.active { display: block; }
+
+  /* BOTTOM NAV */
+  .bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 430px;
+    display: flex;
+    background: var(--bg2);
+    border-top: 0.5px solid var(--border2);
+    z-index: 200;
+  }
+  .bnav-item {
+    flex: 1;
+    padding: 12px 0 16px;
+    text-align: center;
+    cursor: pointer;
+    font-size: 10px;
+    color: var(--text3);
+    letter-spacing: 0.06em;
+    transition: color 0.2s;
+  }
+  .bnav-item.active { color: var(--gold); }
+  .bnav-icon { font-size: 20px; margin-bottom: 3px; }
+
+  /* HERO / HOME */
+  .hero {
+    padding: 24px 20px 16px;
+    background: linear-gradient(180deg, #1a1200 0%, var(--bg) 100%);
+  }
+  .hero-label {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .hero-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 38px;
+    line-height: 1;
+    letter-spacing: 0.04em;
+    margin-bottom: 6px;
+  }
+  .hero-title span { color: var(--gold); }
+  .hero-sub {
+    font-size: 12px;
+    color: var(--text2);
+    line-height: 1.5;
+  }
+
+  /* FRUIT PICKER */
+  .section { padding: 20px 20px 0; }
+  .section-label {
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    color: var(--text3);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .fruit-row {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    scrollbar-width: none;
+  }
+  .fruit-row::-webkit-scrollbar { display: none; }
+  .fruit-chip {
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    padding: 10px 14px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.18s;
+    min-width: 64px;
+  }
+  .fruit-chip.selected {
+    background: var(--gold-dim);
+    border-color: var(--gold);
+  }
+  .fruit-chip-emoji { font-size: 22px; }
+  .fruit-chip-name {
+    font-size: 10px;
+    color: var(--text2);
+    font-weight: 500;
+    letter-spacing: 0.05em;
+  }
+  .fruit-chip.selected .fruit-chip-name { color: var(--gold); }
+
+  /* TEXTAREA */
+  .story-box {
+    margin: 20px 20px 0;
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+  .story-box-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-bottom: 0.5px solid var(--border);
+  }
+  .story-box-title {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text2);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .char-count { font-size: 10px; color: var(--text3); }
+  textarea {
+    width: 100%;
+    min-height: 140px;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    line-height: 1.65;
+    padding: 14px 16px;
+    resize: none;
+  }
+  textarea::placeholder { color: var(--text3); }
+
+  /* GENERATE BUTTON */
+  .gen-btn {
+    margin: 16px 20px 0;
+    width: calc(100% - 40px);
+    padding: 16px;
+    background: var(--gold);
+    color: #000;
+    border: none;
+    border-radius: 14px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .gen-btn:disabled {
+    background: var(--bg4);
+    color: var(--text3);
+    cursor: not-allowed;
+  }
+  .gen-btn:not(:disabled):active { transform: scale(0.97); }
+
+  /* LOADING */
+  .loading-bar {
+    margin: 16px 20px 0;
+    height: 3px;
+    background: var(--bg3);
+    border-radius: 2px;
+    overflow: hidden;
+    display: none;
+  }
+  .loading-bar.active { display: block; }
+  .loading-bar-inner {
+    height: 100%;
+    background: var(--gold);
+    border-radius: 2px;
+    animation: loadpulse 1.4s ease-in-out infinite;
+  }
+  @keyframes loadpulse {
+    0% { width: 0%; margin-left: 0; }
+    50% { width: 60%; margin-left: 20%; }
+    100% { width: 0%; margin-left: 100%; }
+  }
+  .loading-msg {
+    text-align: center;
+    font-size: 12px;
+    color: var(--text2);
+    margin: 10px 0 0;
+    letter-spacing: 0.05em;
+    display: none;
+  }
+  .loading-msg.active { display: block; }
+
+  /* TABS */
+  .tabs {
+    display: flex;
+    gap: 6px;
+    padding: 16px 20px 0;
+  }
+  .tab {
+    flex: 1;
+    padding: 9px 6px;
+    background: var(--bg3);
+    border: 0.5px solid var(--border);
+    border-radius: 10px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    color: var(--text3);
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.18s;
+    text-transform: uppercase;
+  }
+  .tab.active {
+    background: var(--gold-dim);
+    border-color: var(--gold);
+    color: var(--gold);
+  }
+
+  /* RESULT CONTENT */
+  .result-content { padding: 16px 20px 0; display: none; }
+  .result-content.active { display: block; }
+
+  /* SCENE CARD */
+  .scene-card {
+    background: var(--bg2);
+    border: 0.5px solid var(--border2);
+    border-left: 3px solid var(--gold);
+    border-radius: 12px;
+    padding: 14px;
+    margin-bottom: 12px;
+    animation: fadeup 0.3s ease both;
+  }
+  @keyframes fadeup {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .scene-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  .scene-badge {
+    background: var(--gold);
+    color: #000;
+    font-size: 9px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 6px;
+    letter-spacing: 0.08em;
+  }
+  .scene-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    flex: 1;
+  }
+
+  .block-label {
+    font-size: 9px;
+    letter-spacing: 0.16em;
+    color: var(--text3);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .dialogue-line {
+    background: var(--bg3);
+    border-radius: 8px;
+    padding: 8px 10px;
+    font-size: 12px;
+    color: var(--text);
+    line-height: 1.55;
+    margin-bottom: 4px;
+    font-style: italic;
+  }
+
+  .prompt-block {
+    background: #0d1a0e;
+    border: 0.5px solid #1a3a1a;
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 11px;
+    color: #86efac;
+    line-height: 1.6;
+    margin-bottom: 6px;
+  }
+  .prompt-block.blue {
+    background: #0d1220;
+    border-color: #1a2040;
+    color: #93c5fd;
+  }
+
+  .copy-btn {
+    background: var(--bg4);
+    border: 0.5px solid var(--border2);
+    border-radius: 6px;
+    padding: 5px 12px;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--text2);
+    cursor: pointer;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    transition: all 0.15s;
+  }
+  .copy-btn.copied {
+    background: var(--green);
+    color: #000;
+    border-color: var(--green);
+  }
+  .copy-btn:active { transform: scale(0.95); }
+
+  .block-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 5px;
+  }
+
+  /* VOICE CARD */
+  .voice-card {
+    background: var(--bg2);
+    border: 0.5px solid var(--border2);
+    border-left: 3px solid #a855f7;
+    border-radius: 12px;
+    padding: 14px;
+    margin-bottom: 12px;
+    animation: fadeup 0.3s ease both;
+  }
+  .voice-name {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .voice-rec {
+    font-size: 11px;
+    color: #a855f7;
+    margin-bottom: 10px;
+    font-weight: 500;
+  }
+  .voice-line {
+    background: var(--bg3);
+    border-radius: 7px;
+    padding: 7px 10px;
+    font-size: 11px;
+    color: var(--text2);
+    margin-bottom: 4px;
+    font-style: italic;
+  }
+
+  /* SETTINGS */
+  .settings-block {
+    background: var(--bg2);
+    border: 0.5px solid var(--border2);
+    border-radius: 12px;
+    padding: 14px;
+    margin-bottom: 12px;
+  }
+  .settings-title {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .settings-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 0.5px solid var(--border);
+    font-size: 12px;
+  }
+  .settings-row:last-child { border-bottom: none; }
+  .settings-key { color: var(--text2); }
+  .settings-val { color: var(--gold); font-weight: 600; }
+
+  .tip-row {
+    display: flex;
+    gap: 10px;
+    padding: 9px 0;
+    border-bottom: 0.5px solid var(--border);
+    font-size: 12px;
+    line-height: 1.5;
+    color: var(--text2);
+  }
+  .tip-row:last-child { border-bottom: none; }
+  .tip-num {
+    color: var(--gold);
+    font-weight: 700;
+    min-width: 18px;
+    font-size: 13px;
+  }
+
+  /* HISTORY SCREEN */
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text3);
+  }
+  .empty-icon { font-size: 40px; margin-bottom: 12px; }
+  .empty-text { font-size: 13px; line-height: 1.6; }
+
+  /* IMAGE GENERATION */
+  .img-preview {
+    width: 100%;
+    aspect-ratio: 16/9;
+    border-radius: 10px;
+    object-fit: cover;
+    display: block;
+    background: var(--bg4);
+    margin-top: 8px;
+    border: 0.5px solid var(--border2);
+  }
+  .img-placeholder {
+    width: 100%;
+    aspect-ratio: 16/9;
+    border-radius: 10px;
+    background: var(--bg3);
+    border: 1px dashed var(--border2);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 8px;
+    cursor: pointer;
+    transition: border-color 0.2s;
+  }
+  .img-placeholder:hover { border-color: var(--gold); }
+  .img-placeholder-icon { font-size: 28px; }
+  .img-placeholder-text { font-size: 11px; color: var(--text3); }
+  .img-gen-btn {
+    margin-top: 8px;
+    width: 100%;
+    padding: 9px;
+    background: var(--bg4);
+    border: 0.5px solid var(--border2);
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text2);
+    cursor: pointer;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    transition: all 0.18s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+  .img-gen-btn:hover { border-color: var(--gold); color: var(--gold); }
+  .img-gen-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .img-loading {
+    font-size: 11px;
+    color: var(--gold);
+    text-align: center;
+    padding: 6px 0;
+    display: none;
+    animation: pulse 1.2s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+  .img-download-btn {
+    margin-top: 6px;
+    width: 100%;
+    padding: 8px;
+    background: transparent;
+    border: 0.5px solid var(--green);
+    border-radius: 8px;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--green);
+    cursor: pointer;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    transition: all 0.15s;
+  }
+  .img-download-btn.visible { display: flex; }
+
+  /* DIVIDER */
+  .mt12 { margin-top: 12px; }
+  .mt8 { margin-top: 8px; }
+</style>
+</head>
+<body>
+
+<!-- TOP NAV -->
+<div class="nav">
+  <div>
+    <span class="nav-logo">Drama Studio</span>
+    <span class="nav-badge">AI</span>
+  </div>
+  <div class="nav-icon">⚙️</div>
+</div>
+
+<!-- SCREENS -->
+
+<!-- HOME SCREEN -->
+<div class="screen active" id="screen-home">
+
+  <div class="hero">
+    <div class="hero-label">Générateur de Contenu Viral</div>
+    <div class="hero-title">CRÉEZ <span>VOTRE</span><br/>DRAMA 🎬</div>
+    <div class="hero-sub">Script · Prompts Image · Animation · Voix ElevenLabs</div>
+  </div>
+
+  <!-- FRUIT PICKER -->
+  <div class="section">
+    <div class="section-label">Choisis ton personnage</div>
+    <div class="fruit-row" id="fruitRow">
+      <!-- injected by JS -->
+    </div>
+  </div>
+
+  <!-- STORY INPUT -->
+  <div class="story-box">
+    <div class="story-box-header">
+      <div class="story-box-title">📝 Ton Histoire</div>
+      <div class="char-count" id="charCount">0 car.</div>
+    </div>
+    <textarea id="storyInput" placeholder="Colle ici les dialogues de ton histoire drama..."></textarea>
+  </div>
+
+  <!-- GENERATE -->
+  <button class="gen-btn" id="genBtn" onclick="generate()">
+    🎬 GÉNÉRER LE SCRIPT
+  </button>
+
+  <div class="loading-bar" id="loadBar"><div class="loading-bar-inner"></div></div>
+  <div class="loading-msg" id="loadMsg">⏳ L'IA génère ton script complet...</div>
+
+  <!-- TABS + RESULTS -->
+  <div class="tabs" id="tabsRow" style="display:none;">
+    <div class="tab active" onclick="switchTab('scenes')">🎬 Scènes</div>
+    <div class="tab" onclick="switchTab('voices')">🎙 Voix</div>
+    <div class="tab" onclick="switchTab('capcut')">✂️ CapCut</div>
+  </div>
+
+  <!-- SCENES TAB -->
+  <div class="result-content active" id="tab-scenes"></div>
+
+  <!-- VOICES TAB -->
+  <div class="result-content" id="tab-voices"></div>
+
+  <!-- CAPCUT TAB -->
+  <div class="result-content" id="tab-capcut"></div>
+
+</div>
+
+<!-- HISTORY SCREEN -->
+<div class="screen" id="screen-history">
+  <div class="empty-state">
+    <div class="empty-icon">📂</div>
+    <div class="empty-text">Tes scripts générés<br/>apparaîtront ici</div>
+  </div>
+</div>
+
+<!-- BOTTOM NAV -->
+<div class="bottom-nav">
+  <div class="bnav-item active" onclick="switchScreen('home', this)">
+    <div class="bnav-icon">🎬</div>
+    Créer
+  </div>
+  <div class="bnav-item" onclick="switchScreen('history', this)">
+    <div class="bnav-icon">📂</div>
+    Historique
+  </div>
+</div>
+
+<script>
+const FRUITS = [
+  { e: "🍋", n: "Citron", en: "lemon" },
+  { e: "🍎", n: "Pomme", en: "apple" },
+  { e: "🍓", n: "Fraise", en: "strawberry" },
+  { e: "🍊", n: "Orange", en: "orange" },
+  { e: "🍇", n: "Raisin", en: "grape" },
+  { e: "🥭", n: "Mangue", en: "mango" },
+  { e: "🍑", n: "Pêche", en: "peach" },
+  { e: "🍍", n: "Ananas", en: "pineapple" },
+  { e: "🥝", n: "Kiwi", en: "kiwi" },
+  { e: "🍒", n: "Cerise", en: "cherry" },
+];
+
+let selectedFruit = FRUITS[0];
+let currentTab = "scenes";
+let lastResult = null;
+
+// Build fruit row
+const fruitRow = document.getElementById("fruitRow");
+FRUITS.forEach((f, i) => {
+  const chip = document.createElement("div");
+  chip.className = "fruit-chip" + (i === 0 ? " selected" : "");
+  chip.innerHTML = `<div class="fruit-chip-emoji">${f.e}</div><div class="fruit-chip-name">${f.n}</div>`;
+  chip.onclick = () => {
+    document.querySelectorAll(".fruit-chip").forEach(c => c.classList.remove("selected"));
+    chip.classList.add("selected");
+    selectedFruit = f;
+    document.getElementById("genBtn").textContent = `🎬 GÉNÉRER LE SCRIPT ${f.e}`;
+  };
+  fruitRow.appendChild(chip);
+});
+
+// Char count
+const storyInput = document.getElementById("storyInput");
+storyInput.addEventListener("input", () => {
+  document.getElementById("charCount").textContent = storyInput.value.length + " car.";
+});
+
+// Screen switch
+function switchScreen(id, el) {
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+  document.getElementById("screen-" + id).classList.add("active");
+  document.querySelectorAll(".bnav-item").forEach(b => b.classList.remove("active"));
+  el.classList.add("active");
+}
+
+// Tab switch
+function switchTab(name) {
+  currentTab = name;
+  document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+  document.querySelectorAll(".result-content").forEach(c => c.classList.remove("active"));
+  event.target.classList.add("active");
+  document.getElementById("tab-" + name).classList.add("active");
+}
+
+// Copy
+function copyText(text, btn) {
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = "✓ COPIÉ";
+    btn.classList.add("copied");
+    setTimeout(() => { btn.textContent = "COPIER"; btn.classList.remove("copied"); }, 2000);
+  });
+}
+
+// Generate
+async function generate() {
+  const story = storyInput.value.trim();
+  if (!story) return;
+
+  const btn = document.getElementById("genBtn");
+  const bar = document.getElementById("loadBar");
+  const msg = document.getElementById("loadMsg");
+
+  btn.disabled = true;
+  bar.classList.add("active");
+  msg.classList.add("active");
+  document.getElementById("tabsRow").style.display = "none";
+  ["scenes","voices","capcut"].forEach(t => document.getElementById("tab-"+t).innerHTML = "");
+
+  try {
+    const res = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-20250514",
+        max_tokens: 1000,
+        messages: [{
+          role: "user",
+          content: `Tu es expert en création de contenu drama viral TikTok/Reels avec personnages fruits IA.
+
+Histoire :
+"""
+${story}
+"""
+
+Personnage principal : ${selectedFruit.n} (${selectedFruit.en}-headed character)
+
+Réponds UNIQUEMENT en JSON valide, sans markdown ni texte avant/après :
+{
+  "scenes": [
+    {
+      "number": 1,
+      "title": "titre court",
+      "dialogue": ["réplique 1", "réplique 2"],
+      "image_prompt": "prompt anglais Leonardo.ai photoréaliste cinématographique ${selectedFruit.en}-headed",
+      "animation_prompt": "prompt Google Flow anglais lip sync mouth moving"
+    }
+  ],
+  "voices": [
+    {
+      "character": "nom",
+      "recommended_voice": "Charlotte ou Liam ou George etc",
+      "style_prompt": "style anglais ElevenLabs",
+      "lines": ["réplique 1"]
+    }
+  ],
+  "capcut_tips": ["conseil 1", "conseil 2", "conseil 3", "conseil 4"]
+}`
+        }]
+      })
+    });
+
+    const data = await res.json();
+    const text = data.content.map(i => i.text||"").join("");
+    const clean = text.replace(/```json|```/g,"").trim();
+    lastResult = JSON.parse(clean);
+
+    renderScenes(lastResult.scenes);
+    renderVoices(lastResult.voices);
+    renderCapcut(lastResult.capcut_tips);
+
+    document.getElementById("tabsRow").style.display = "flex";
+
+  } catch(e) {
+    document.getElementById("tab-scenes").innerHTML = `<div style="padding:20px;color:#f87171;font-size:13px;">❌ Erreur : ${e.message}</div>`;
+    document.getElementById("tabsRow").style.display = "flex";
+  }
+
+  btn.disabled = false;
+  bar.classList.remove("active");
+  msg.classList.remove("active");
+}
+
+function renderScenes(scenes) {
+  const container = document.getElementById("tab-scenes");
+  container.innerHTML = "";
+  (scenes||[]).forEach((s, i) => {
+    const div = document.createElement("div");
+    div.className = "scene-card";
+    div.style.animationDelay = (i * 0.07) + "s";
+
+    const dialogueHTML = (s.dialogue||[]).map(d => `<div class="dialogue-line">"${d}"</div>`).join("");
+    const animId = "anim-" + i;
+    const safePrompt = s.image_prompt.replace(/"/g,"'");
+    const safeAnim = s.animation_prompt.replace(/"/g,"'");
+
+    div.innerHTML = `
+      <div class="scene-header">
+        <span class="scene-badge">SCÈNE ${s.number}</span>
+        <span class="scene-title">${s.title}</span>
+      </div>
+      <div class="block-label">💬 Dialogue</div>
+      ${dialogueHTML}
+      <div class="mt12"></div>
+      <div class="block-row">
+        <div class="block-label">🖼️ Image IA</div>
+        <button class="copy-btn" onclick="copyText(this.dataset.text, this)" data-text="${safePrompt}">COPIER PROMPT</button>
+      </div>
+      <div class="prompt-block" style="margin-bottom:8px">${s.image_prompt}</div>
+      <button class="img-gen-btn" id="genbtn-${i}" onclick="generateImage(${i}, \`${safePrompt}\`)">
+        ✨ GÉNÉRER L'IMAGE
+      </button>
+      <div class="img-loading" id="imgloading-${i}">⏳ Génération en cours...</div>
+      <img class="img-preview" id="imgpreview-${i}" style="display:none" alt="Scene ${s.number}" />
+      <button class="img-download-btn" id="imgdl-${i}" onclick="downloadImage(${i}, ${s.number})">
+        ⬇️ TÉLÉCHARGER
+      </button>
+      <div class="mt8"></div>
+      <div class="block-row">
+        <div class="block-label">🎥 Google Flow</div>
+        <button class="copy-btn" id="${animId}" onclick="copyText(this.dataset.text, this)" data-text="${safeAnim}">COPIER</button>
+      </div>
+      <div class="prompt-block blue">${s.animation_prompt}</div>
+    `;
+    container.appendChild(div);
+  });
+}
+
+async function generateImage(index, prompt) {
+  const btn = document.getElementById("genbtn-" + index);
+  const loading = document.getElementById("imgloading-" + index);
+  const preview = document.getElementById("imgpreview-" + index);
+  const dlBtn = document.getElementById("imgdl-" + index);
+
+  btn.disabled = true;
+  loading.style.display = "block";
+  preview.style.display = "none";
+  dlBtn.classList.remove("visible");
+
+  try {
+    const encoded = encodeURIComponent(prompt + ", cinematic, photorealistic, 8k, dramatic lighting");
+    const url = `https://image.pollinations.ai/prompt/${encoded}?width=1280&height=720&nologo=true&enhance=true`;
+    const img = new Image();
+    img.onload = () => {
+      preview.src = url;
+      preview.style.display = "block";
+      loading.style.display = "none";
+      dlBtn.classList.add("visible");
+      btn.disabled = false;
+      btn.textContent = "🔄 REGÉNÉRER";
+    };
+    img.onerror = () => {
+      loading.style.display = "none";
+      loading.style.color = "var(--red)";
+      loading.style.display = "block";
+      loading.textContent = "❌ Erreur, réessaie";
+      btn.disabled = false;
+    };
+    img.src = url;
+  } catch(e) {
+    loading.textContent = "❌ Erreur";
+    btn.disabled = false;
+  }
+}
+
+function downloadImage(index, sceneNum) {
+  const preview = document.getElementById("imgpreview-" + index);
+  if (!preview.src) return;
+  const a = document.createElement("a");
+  a.href = preview.src;
+  a.download = "scene-" + sceneNum + ".jpg";
+  a.target = "_blank";
+  a.click();
+}
+
+function renderVoices(voices) {
+  const container = document.getElementById("tab-voices");
+  container.innerHTML = `
+    <div class="settings-block">
+      <div class="settings-title">⚙️ Paramètres ElevenLabs</div>
+      <div class="settings-row"><span class="settings-key">Stabilité</span><span class="settings-val">45%</span></div>
+      <div class="settings-row"><span class="settings-key">Similarité</span><span class="settings-val">75%</span></div>
+      <div class="settings-row"><span class="settings-key">Style Exaggeration</span><span class="settings-val">60%</span></div>
+      <div class="settings-row"><span class="settings-key">Langue</span><span class="settings-val">Français</span></div>
+    </div>
+  `;
+  (voices||[]).forEach((v, i) => {
+    const div = document.createElement("div");
+    div.className = "voice-card";
+    div.style.animationDelay = (i * 0.07) + "s";
+    const linesHTML = (v.lines||[]).map(l => `<div class="voice-line">"${l}"</div>`).join("");
+    div.innerHTML = `
+      <div class="voice-name">🎭 ${v.character}</div>
+      <div class="voice-rec">Voix recommandée : ${v.recommended_voice}</div>
+      <div class="block-row">
+        <div class="block-label">Style Prompt</div>
+        <button class="copy-btn" onclick="copyText(this.dataset.text, this)" data-text="${v.style_prompt.replace(/"/g,"'")}">COPIER</button>
+      </div>
+      <div class="prompt-block blue" style="margin-bottom:10px">${v.style_prompt}</div>
+      <div class="block-label">Répliques</div>
+      ${linesHTML}
+    `;
+    container.appendChild(div);
+  });
+}
+
+function renderCapcut(tips) {
+  const container = document.getElementById("tab-capcut");
+  const tipsHTML = (tips||[]).map((t,i) => `
+    <div class="tip-row">
+      <span class="tip-num">${i+1}.</span>
+      <span>${t}</span>
+    </div>
+  `).join("");
+
+  container.innerHTML = `
+    <div class="settings-block">
+      <div class="settings-title">✂️ Conseils Montage</div>
+      ${tipsHTML}
+    </div>
+    <div class="settings-block">
+      <div class="settings-title">📐 Réglages Fixes</div>
+      <div class="settings-row"><span class="settings-key">Sous-titres</span><span class="settings-val">Jaune gras</span></div>
+      <div class="settings-row"><span class="settings-key">Format export</span><span class="settings-val">1080×1920</span></div>
+      <div class="settings-row"><span class="settings-key">Musique fond</span><span class="settings-val">Volume 15%</span></div>
+      <div class="settings-row"><span class="settings-key">Durée / scène</span><span class="settings-val">3–5 sec</span></div>
+      <div class="settings-row"><span class="settings-key">Sous-titres style</span><span class="settings-val">Mot par mot</span></div>
+    </div>
+  `;
+}
+</script>
+</body>
+</html>
